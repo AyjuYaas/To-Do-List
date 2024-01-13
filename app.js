@@ -2,7 +2,6 @@ import express from "express";
 import bodyParser from "body-parser";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { getDate } from "./date.mjs";
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 import _ from "lodash";
@@ -10,7 +9,9 @@ import _ from "lodash";
 main().catch((err) => console.log(err));
 
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/todolistDB");
+  await mongoose.connect(
+    "mongodb+srv://sayujya57:pv3vju1WDyH9moxE@cluster0.u4sgcsh.mongodb.net/todolistDB?retryWrites=true&w=majority"
+  );
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -48,12 +49,11 @@ const defaultItems = [item1, item2, item3];
 
 const count = await Item.countDocuments({});
 if (count === 0) {
-  Item.insertMany(defaultItems);
+  await Item.insertMany(defaultItems);
 }
 
 // ------------------------------------------------------
-
-const dayToday = getDate();
+const dayToday = "Today";
 app.get("/", async (req, res) => {
   const items = await Item.find({});
 
@@ -74,7 +74,7 @@ app.post("/", async (req, res) => {
   } else {
     const foundList = await List.findOne({ name: listName });
     foundList.items.push(item);
-    foundList.save();
+    await foundList.save();
     res.redirect(`/${listName}`);
   }
 });
@@ -95,7 +95,6 @@ app.post("/delete", async (req, res) => {
 // Dynamic Routing
 app.get("/:nameOfList", async (req, res) => {
   const nameOfList = _.upperFirst(_.lowerCase(req.params.nameOfList));
-  console.log(nameOfList);
   const foundItem = await List.findOne({ name: nameOfList });
 
   if (foundItem === null) {
@@ -104,13 +103,14 @@ app.get("/:nameOfList", async (req, res) => {
       items: defaultItems,
     });
 
-    list.save();
+    await list.save();
     res.redirect(`/${nameOfList}`);
   } else {
     res.render("index", { heading: nameOfList, newListItems: foundItem.items });
   }
 });
 
+let PORT = process.env.port || 3000;
 app.listen(3000, () => {
-  console.log("Server Running on Port 3000");
+  console.log("Server Started Running");
 });
