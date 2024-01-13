@@ -10,7 +10,7 @@ main().catch((err) => console.log(err));
 
 async function main() {
   await mongoose.connect(
-    "mongodb+srv://sayujya57:pv3vju1WDyH9moxE@cluster0.u4sgcsh.mongodb.net/todolistDB?retryWrites=true&w=majority"
+    "mongodb://127.0.0.1:27017/todolistDB"
   );
 }
 
